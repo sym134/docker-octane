@@ -5,7 +5,7 @@ ARG SCHEDULE_CRONTAB="* * * * * cd /var/www && php artisan schedule:run >> /dev/
 
 ADD $INSTALLER_BASE_URL/latest/download/install-php-extensions /usr/local/bin/
 
-#ENV TZ=UTC
+ENV TZ=UTC
 
 ### default laravel octane dependencies
 RUN crontab -l | { cat; echo "$SCHEDULE_CRONTAB"; } | crontab - \
@@ -19,7 +19,8 @@ RUN crontab -l | { cat; echo "$SCHEDULE_CRONTAB"; } | crontab - \
     tzdata \
     nodejs \
     npm \
-    zip
+    zip \
+    ffmpeg
 
 ### install some default fonts
 RUN apk add --update \
@@ -61,16 +62,15 @@ RUN install-php-extensions \
     zip
 
 ### set timezone and clean-up
-
 RUN cp /usr/share/zoneinfo/$TZ /etc/localtime \
-        && echo $TZ > /etc/timezone \
+    && echo $TZ > /etc/timezone \
     && apk del tzdata \
     && rm -rf /usr/local/bin/install-php-extensions \
     && rm -rf /tmp/* /var/tmp/* \
     && rm -rf /var/cache/apk/*
 
 # 将 /run 目录的所有权更改为 nobody 用户，确保非 root 用户可以访问。
-RUN chown -R nobody.nobody /run
+RUN #chown -R nobody.nobody /run
 
 # 创建应用目录
 RUN mkdir -p /app
@@ -84,13 +84,10 @@ VOLUME /app
 # Add application
 WORKDIR /app
 
-VOLUME /supervisord
-
-### default supervisor and php ini files
-COPY supervisord/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+### default php ini files
 COPY config/octane.ini /usr/local/etc/php/conf.d/octane.ini
 
 # 暴露端口 workman端口
-EXPOSE 9000 8000 6001
+EXPOSE 8000 6001
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
