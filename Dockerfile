@@ -73,16 +73,16 @@ RUN cp /usr/share/zoneinfo/$TZ /etc/localtime \
 RUN #chown -R nobody.nobody /run
 
 # 创建应用目录
-RUN mkdir -p /app
+#RUN mkdir -p /var/www
 
 # Make the document root a volume
-VOLUME /app
+VOLUME /var/www
 
 # Switch to use a non-root user from here on
 #USER root
 
 # Add application
-WORKDIR /app
+WORKDIR /var/www
 
 ### default php ini files
 COPY config/octane.ini /usr/local/etc/php/conf.d/octane.ini

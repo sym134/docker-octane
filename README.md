@@ -18,7 +18,7 @@ docker run -d \
   -p 9000:9000 \
   -p 8000:8000 \
   -p 6001:6001 \
-  -v /path/to/your/app:/app \
+  -v /path/to/your/app:/var/www \
   --name laravel-container \
   your_image_name:tag
 ```
